@@ -47,6 +47,11 @@ export function ProjectEditor({ project, onSave, onClose }: ProjectEditorProps) 
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && name.trim() && !saving) {
+                handleSubmit(e);
+              }
+            }}
             className="w-full text-sm border border-neutral-200 rounded-lg p-2 focus:border-neutral-900 focus:ring-0"
             placeholder="Project name"
             autoFocus

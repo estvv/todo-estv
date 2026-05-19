@@ -45,6 +45,11 @@ func main() {
 
 	// Public routes (no auth required)
 	api.HandleFunc("/login", authHandler.Login).Methods("POST")
+	api.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"status":"ok"}`))
+	}).Methods("GET")
 
 	// Protected routes (require auth)
 	protected := api.PathPrefix("").Subrouter()
