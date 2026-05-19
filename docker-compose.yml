@@ -4,13 +4,15 @@ services:
       context: ./backend
       dockerfile: ../Dockerfile.backend
     container_name: todo-backend
-    ports:
-      - "${BACKEND_PORT:-3005}:${BACKEND_PORT:-3005}"
+    expose:
+      - "8080"
+    networks:
+      - caddy_net
     volumes:
       - ./data:/app/data
     environment:
       - DB_PATH=/app/data/todo.db
-      - PORT=${BACKEND_PORT:-3005}
+      - PORT=8080
       - AUTH_PASSWORD=${AUTH_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
     restart: unless-stopped
@@ -28,10 +30,12 @@ services:
       context: ./frontend
       dockerfile: ../Dockerfile.frontend
       args:
-        - VITE_API_URL=${VITE_API_URL:-/api}
+        - VITE_API_URL=/api
     container_name: todo-frontend
-    ports:
-      - "${FRONTEND_PORT:-3004}:80"
+    expose:
+      - "80"
+    networks:
+      - caddy_net
     depends_on:
       - backend
     restart: unless-stopped
@@ -43,3 +47,7 @@ services:
         reservations:
           memory: 64M
           cpus: '0.25'
+
+networks:
+  caddy_net:
+    external: true
