@@ -3,7 +3,7 @@ services:
     build:
       context: ./backend
       dockerfile: ../Dockerfile.backend
-    container_name: todo-backend
+    container_name: todo-backend-estv
     expose:
       - "8080"
     networks:
@@ -31,7 +31,7 @@ services:
       dockerfile: ../Dockerfile.frontend
       args:
         - VITE_API_URL=/api
-    container_name: todo-frontend
+    container_name: todo-frontend-estv
     expose:
       - "80"
     networks:
