@@ -15,19 +15,19 @@ var (
 )
 
 func InitRateLimiters() {
-	// General rate limit: 100 requests per minute
+	// General rate limit: 1000 requests per minute (10 req/sec)
 	generalStore := memory.NewStore()
 	generalRate := limiter.Rate{
 		Period: 1 * time.Minute,
-		Limit:  100,
+		Limit:  1000,
 	}
 	generalLimiter = stdlib.NewMiddleware(limiter.New(generalStore, generalRate, limiter.WithTrustForwardHeader(true)))
 
-	// Login rate limit: 5 attempts per minute
+	// Login rate limit: 10 attempts per minute
 	loginStore := memory.NewStore()
 	loginRate := limiter.Rate{
 		Period: 1 * time.Minute,
-		Limit:  5,
+		Limit:  10,
 	}
 	loginLimiter = stdlib.NewMiddleware(limiter.New(loginStore, loginRate, limiter.WithTrustForwardHeader(true)))
 }
