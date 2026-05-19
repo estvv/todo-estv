@@ -1,0 +1,8 @@
+node_modules/
+dist/
+build/
+*.db
+*.log
+.env
+data/
+.vscode
