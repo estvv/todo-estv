@@ -105,6 +105,19 @@ func (h *TodoHandler) Create(w http.ResponseWriter, r *http.Request) {
 		todo.Priority = "medium"
 	}
 
+	// Check task limit (only for parent tasks, not subtasks)
+	if todo.ParentID == nil {
+		count, err := h.DB.GetTodoCount()
+		if err != nil {
+			respondError(w, http.StatusInternalServerError, "Failed to check task limit")
+			return
+		}
+		if count >= 100 {
+			respondError(w, http.StatusForbidden, "Maximum task limit (100) reached")
+			return
+		}
+	}
+
 	if err := h.DB.CreateTodo(&todo); err != nil {
 		respondError(w, http.StatusInternalServerError, err.Error())
 		return

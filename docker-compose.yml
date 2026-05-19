@@ -11,7 +11,17 @@ services:
     environment:
       - DB_PATH=/app/data/todo.db
       - PORT=3005
+      - AUTH_PASSWORD=${AUTH_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+          cpus: '0.5'
 
   frontend:
     build:
@@ -23,3 +33,11 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.5'
+        reservations:
+          memory: 64M
+          cpus: '0.25'

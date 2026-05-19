@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
 import { ListView } from './components/views/ListView';
@@ -6,17 +6,26 @@ import { BoardView } from './components/views/BoardView';
 import { CalendarView } from './components/views/CalendarView';
 import { ProjectEditor } from './components/projects/ProjectEditor';
 import { TagEditor } from './components/tags/TagEditor';
+import { LoginPage } from './components/auth/LoginPage';
 import { useTodos, useProjects, useTags } from './hooks/useApi';
 import { api } from './utils/api';
+import { isAuthenticated } from './utils/auth';
 import type { ViewMode, Todo, Project, Tag } from './types';
 
 function App() {
+  const [authenticated, setAuthenticated] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [currentView, setCurrentView] = useState<ViewMode>('list');
   const [activeProject, setActiveProject] = useState<number | undefined>();
   const [activeTag, setActiveTag] = useState<number | undefined>();
   
   const [showProjectEditor, setShowProjectEditor] = useState(false);
   const [showTagEditor, setShowTagEditor] = useState(false);
+
+  useEffect(() => {
+    setCheckingAuth(false);
+    setAuthenticated(isAuthenticated());
+  }, []);
 
   const filters: Record<string, string> = {};
   if (activeProject) filters.project_id = String(activeProject);
@@ -26,7 +35,7 @@ function App() {
     todos, 
     loading: todosLoading, 
     fetchTodos
-  } = useTodos(filters);
+  } = useTodos(authenticated ? filters : {});
 
   const { 
     projects, 
@@ -63,6 +72,22 @@ function App() {
     await api.todos.delete(id);
     await fetchTodos();
   };
+
+  const handleLogin = () => {
+    setAuthenticated(true);
+  };
+
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-sm text-neutral-400">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!authenticated) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
 
   return (
     <div className="min-h-screen bg-white">

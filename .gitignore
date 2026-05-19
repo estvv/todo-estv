@@ -4,5 +4,6 @@ build/
 *.db
 *.log
 .env
+.env.local
 data/
 .vscode

@@ -9,39 +9,71 @@ A self-hosted todo application with React frontend and Go backend.
 - **Multiple views**: List, Kanban board, and Calendar views
 - **Auto-save**: Changes are saved automatically
 - **Clean design**: Minimalist white-on-neutral design system
+- **Authentication**: Password-protected with JWT tokens
+- **Security**: Rate limiting, task limits, Docker resource limits
+
+## Quick Start
+
+### 1. Create Environment File
+
+```bash
+cp .env.example .env
+nano .env
+```
+
+Set these values:
+- `AUTH_PASSWORD`: A strong password (at least 16 characters)
+- `JWT_SECRET`: A random secret key (at least 32 characters)
+
+Generate secure values:
+```bash
+openssl rand -base64 32   # For AUTH_PASSWORD
+openssl rand -base64 64   # For JWT_SECRET
+```
+
+### 2. Start the Application
+
+```bash
+docker compose up -d
+```
+
+Access at: `http://localhost:3004`
+
+### 3. Login
+
+Use the password you set in `AUTH_PASSWORD` to log in.
 
 ## Tech Stack
 
 - **Backend**: Go with SQLite database
 - **Frontend**: React + TypeScript + Vite
 - **Styling**: Tailwind CSS
+- **Authentication**: JWT tokens (7-day expiration)
 - **Deployment**: Docker Compose
 
-## Quick Start
+## Security Features
 
-### Using Docker Compose (Recommended)
+| Feature | Details |
+|---------|---------|
+| **Authentication** | Password-protected with JWT tokens |
+| **Rate Limiting** | 5 login attempts/min, 100 general requests/min |
+| **Task Limit** | Maximum 100 tasks (prevents database abuse) |
+| **Resource Limits** | Docker memory/CPU limits |
+| **Security Headers** | XSS protection, clickjacking prevention, HTTPS enforcement |
 
-```bash
-# Build and run
-docker compose up -d
+## Development
 
-# Access the app
-open http://localhost:3004
-```
-
-### Development
-
-#### Backend
+### Backend
 
 ```bash
 cd backend
 go mod tidy
-PORT=3005 go run main.go
+AUTH_PASSWORD=dev JWT_SECRET=dev-secret go run main.go
 ```
 
 The API will be available at `http://localhost:3005`
 
-#### Frontend
+### Frontend
 
 ```bash
 cd frontend
@@ -57,72 +89,87 @@ The app uses SQLite for data persistence. The database file is stored at:
 - Docker: `/app/data/todo.db`
 - Development: `./backend/data/todo.db`
 
-## Architecture
+## API Endpoints
+
+### Authentication
+- `POST /api/login` - Login with password, returns JWT token
+
+### Todos
+- `GET /api/todos` - List todos with filters (**requires auth**)
+- `POST /api/todos` - Create todo (**requires auth**)
+- `GET /api/todos/:id` - Get todo details (**requires auth**)
+- `PUT /api/todos/:id` - Update todo (**requires auth**)
+- `DELETE /api/todos/:id` - Delete todo (**requires auth**)
+
+### Projects & Tags
+- All endpoints require authentication
+
+## Environment Variables
+
+| Variable | Required | Default | Purpose |
+|----------|----------|---------|---------|
+| `AUTH_PASSWORD` | Yes | - | Password for login |
+| `JWT_SECRET` | Yes | - | Secret for JWT signing |
+| `DB_PATH` | No | `./data/todo.db` | SQLite database path |
+| `PORT` | No | `3005` | Backend server port |
+
+## Rate Limits
+
+| Endpoint | Limit | Purpose |
+|----------|-------|---------|
+| `/api/login` | 5 req/min | Brute force prevention |
+| All other `/api/*` | 100 req/min | General API abuse prevention |
+
+## Task Limits
+
+- **Maximum 100 tasks per installation**
+- Subtasks don't count toward limit
+- Returns 403 Forbidden when limit reached
+
+## Troubleshooting
+
+### Can't login
+1. Check `AUTH_PASSWORD` in `.env`
+2. Check logs: `docker logs todo-backend`
+3. Wait 1 minute after 5 failed attempts (rate limit)
+
+### 401 Unauthorized
+- Token expired (7-day expiration)
+- Clear browser localStorage and login again
+
+### 429 Too Many Requests
+- Rate limit exceeded
+- Wait 1 minute before retrying
+
+### 403 Forbidden on create task
+- Maximum 100 tasks reached
+- Delete some tasks to free space
+
+## File Structure
 
 ```
 todo-estv/
 ├── backend/              # Go backend
 │   ├── main.go          # Entry point
-│   ├── internal/
-│   │   ├── handlers/    # HTTP handlers
-│   │   ├── models/      # Data models
-│   │   ├── database/    # SQLite operations
-│   │   └── middleware/  # CORS middleware
-│   └── data/            # SQLite database
+│   └── internal/
+│       ├── handlers/    # HTTP handlers
+│       ├── models/      # Data models
+│       ├── database/    # SQLite operations
+│       └── middleware/  # Auth, CORS, rate limiting
 │
 ├── frontend/            # React frontend
 │   └── src/
 │       ├── components/   # React components
 │       ├── hooks/       # Custom hooks
-│       ├── utils/       # API utilities
+│       ├── utils/       # API & auth utilities
 │       └── types/       # TypeScript types
 │
 ├── docker-compose.yml   # Docker orchestration
 ├── Dockerfile.backend   # Backend Dockerfile
-└── Dockerfile.frontend   # Frontend Dockerfile
+├── Dockerfile.frontend  # Frontend Dockerfile
+├── .env.example         # Environment template
+└── README-SECURITY.md   # Detailed security docs
 ```
-
-## API Endpoints
-
-### Todos
-- `GET /api/todos` - List todos with filters
-- `POST /api/todos` - Create todo
-- `GET /api/todos/:id` - Get todo details
-- `PUT /api/todos/:id` - Update todo
-- `DELETE /api/todos/:id` - Delete todo
-- `GET /api/todos/:id/comments` - Get comments
-- `POST /api/todos/:id/comments` - Add comment
-
-### Projects
-- `GET /api/projects` - List projects
-- `POST /api/projects` - Create project
-- `PUT /api/projects/:id` - Update project
-- `DELETE /api/projects/:id` - Delete project
-
-### Tags
-- `GET /api/tags` - List tags
-- `POST /api/tags` - Create tag
-- `PUT /api/tags/:id` - Update tag
-- `DELETE /api/tags/:id` - Delete tag
-
-## Environment Variables
-
-### Backend
-- `DB_PATH`: Path to SQLite database file (default: `./data/todo.db`)
-- `PORT`: Server port (default: `3005`)
-
-### Frontend
-- `VITE_API_URL`: Backend API URL (default: `http://localhost:3005/api`)
-
-## Design System
-
-The app follows a minimalist design with:
-- Pure white background
-- Neutral gray color palette
-- Plus Jakarta Sans typography
-- Colored accents for status and priority
-- No shadows, subtle borders
-- Clean transitions
 
 ## License
 

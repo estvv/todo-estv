@@ -24,35 +24,51 @@ func main() {
 	}
 	defer db.Close()
 
+	// Initialize rate limiters
+	middleware.InitRateLimiters()
+
 	r := mux.NewRouter()
 
+	// Apply security headers globally
+	r.Use(middleware.SecurityHeaders)
+
+	// Auth handler
+	authHandler := &handlers.AuthHandler{}
 	todoHandler := &handlers.TodoHandler{DB: db}
 	projectHandler := &handlers.ProjectHandler{DB: db}
 	tagHandler := &handlers.TagHandler{DB: db}
 
+	// API routes
 	api := r.PathPrefix("/api").Subrouter()
+	api.Use(middleware.CORS)
+	api.Use(middleware.RateLimit)
 
-	api.HandleFunc("/todos", todoHandler.List).Methods("GET")
-	api.HandleFunc("/todos", todoHandler.Create).Methods("POST")
-	api.HandleFunc("/todos/{id}", todoHandler.Get).Methods("GET")
-	api.HandleFunc("/todos/{id}", todoHandler.Update).Methods("PUT")
-	api.HandleFunc("/todos/{id}", todoHandler.Delete).Methods("DELETE")
-	api.HandleFunc("/todos/{id}/comments", todoHandler.GetComments).Methods("GET")
-	api.HandleFunc("/todos/{id}/comments", todoHandler.CreateComment).Methods("POST")
-	api.HandleFunc("/comments/{id}", todoHandler.DeleteComment).Methods("DELETE")
+	// Public routes (no auth required)
+	api.HandleFunc("/login", authHandler.Login).Methods("POST")
 
-	api.HandleFunc("/projects", projectHandler.List).Methods("GET")
-	api.HandleFunc("/projects", projectHandler.Create).Methods("POST")
-	api.HandleFunc("/projects/{id}", projectHandler.Get).Methods("GET")
-	api.HandleFunc("/projects/{id}", projectHandler.Update).Methods("PUT")
-	api.HandleFunc("/projects/{id}", projectHandler.Delete).Methods("DELETE")
+	// Protected routes (require auth)
+	protected := api.PathPrefix("").Subrouter()
+	protected.Use(middleware.Auth)
 
-	api.HandleFunc("/tags", tagHandler.List).Methods("GET")
-	api.HandleFunc("/tags", tagHandler.Create).Methods("POST")
-	api.HandleFunc("/tags/{id}", tagHandler.Update).Methods("PUT")
-	api.HandleFunc("/tags/{id}", tagHandler.Delete).Methods("DELETE")
+	protected.HandleFunc("/todos", todoHandler.List).Methods("GET")
+	protected.HandleFunc("/todos", todoHandler.Create).Methods("POST")
+	protected.HandleFunc("/todos/{id}", todoHandler.Get).Methods("GET")
+	protected.HandleFunc("/todos/{id}", todoHandler.Update).Methods("PUT")
+	protected.HandleFunc("/todos/{id}", todoHandler.Delete).Methods("DELETE")
+	protected.HandleFunc("/todos/{id}/comments", todoHandler.GetComments).Methods("GET")
+	protected.HandleFunc("/todos/{id}/comments", todoHandler.CreateComment).Methods("POST")
+	protected.HandleFunc("/comments/{id}", todoHandler.DeleteComment).Methods("DELETE")
 
-	r.Use(middleware.CORS)
+	protected.HandleFunc("/projects", projectHandler.List).Methods("GET")
+	protected.HandleFunc("/projects", projectHandler.Create).Methods("POST")
+	protected.HandleFunc("/projects/{id}", projectHandler.Get).Methods("GET")
+	protected.HandleFunc("/projects/{id}", projectHandler.Update).Methods("PUT")
+	protected.HandleFunc("/projects/{id}", projectHandler.Delete).Methods("DELETE")
+
+	protected.HandleFunc("/tags", tagHandler.List).Methods("GET")
+	protected.HandleFunc("/tags", tagHandler.Create).Methods("POST")
+	protected.HandleFunc("/tags/{id}", tagHandler.Update).Methods("PUT")
+	protected.HandleFunc("/tags/{id}", tagHandler.Delete).Methods("DELETE")
 
 	port := os.Getenv("PORT")
 	if port == "" {

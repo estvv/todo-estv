@@ -493,3 +493,9 @@ func (db *DB) DeleteTag(id int64) error {
 	_, err := db.Exec(`DELETE FROM tags WHERE id = ?`, id)
 	return err
 }
+
+func (db *DB) GetTodoCount() (int, error) {
+	var count int
+	err := db.QueryRow(`SELECT COUNT(*) FROM todos WHERE parent_id IS NULL`).Scan(&count)
+	return count, err
+}

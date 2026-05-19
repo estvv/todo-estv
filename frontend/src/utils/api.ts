@@ -1,15 +1,30 @@
 import type { Todo, Project, Tag, Comment } from '../types';
+import { getToken, removeToken } from './auth';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  const token = getToken();
+  
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...options?.headers as Record<string, string>,
+  };
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
   const response = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
+    headers,
   });
+  
+  if (response.status === 401) {
+    removeToken();
+    window.location.href = '/login';
+    throw new Error('Unauthorized');
+  }
 
   if (!response.ok) {
     throw new Error(`API Error: ${response.status}`);
