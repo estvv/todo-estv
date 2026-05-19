@@ -5,12 +5,12 @@ services:
       dockerfile: ../Dockerfile.backend
     container_name: todo-backend
     ports:
-      - "3005:3005"
+      - "${BACKEND_PORT:-3005}:${BACKEND_PORT:-3005}"
     volumes:
       - ./data:/app/data
     environment:
       - DB_PATH=/app/data/todo.db
-      - PORT=3005
+      - PORT=${BACKEND_PORT:-3005}
       - AUTH_PASSWORD=${AUTH_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
     restart: unless-stopped
@@ -27,9 +27,11 @@ services:
     build:
       context: ./frontend
       dockerfile: ../Dockerfile.frontend
+      args:
+        - VITE_API_URL=${VITE_API_URL:-/api}
     container_name: todo-frontend
     ports:
-      - "3004:80"
+      - "${FRONTEND_PORT:-3004}:80"
     depends_on:
       - backend
     restart: unless-stopped
