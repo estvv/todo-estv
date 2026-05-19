@@ -21,9 +21,9 @@ COPY --from=builder /app/todo-server .
 
 RUN mkdir -p /app/data
 
-EXPOSE 3005
+EXPOSE 8080
 
 ENV DB_PATH=/app/data/todo.db
-ENV PORT=3005
+ENV PORT=8080
 
 CMD ["./todo-server"]
