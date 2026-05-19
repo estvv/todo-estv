@@ -2,12 +2,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { api } from '../utils/api';
 import type { Todo, Project, Tag } from '../types';
 
-export function useTodos(initialFilter?: Record<string, string>) {
+export function useTodos(initialFilter?: Record<string, string>, enabled: boolean = true) {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
 
   const fetchTodos = useCallback(async (filter?: Record<string, string>) => {
+    if (!enabled) return;
     try {
       setLoading(true);
       const data = await api.todos.list(filter || initialFilter);
@@ -18,11 +19,13 @@ export function useTodos(initialFilter?: Record<string, string>) {
     } finally {
       setLoading(false);
     }
-  }, [initialFilter]);
+  }, [initialFilter, enabled]);
 
   useEffect(() => {
-    fetchTodos();
-  }, []);
+    if (enabled) {
+      fetchTodos();
+    }
+  }, [enabled]);
 
   const createTodo = async (todo: Partial<Todo>) => {
     const newTodo = await api.todos.create(todo);
@@ -60,15 +63,16 @@ export function useTodos(initialFilter?: Record<string, string>) {
   };
 }
 
-export function useProjects() {
+export function useProjects(enabled: boolean = true) {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
 
   useEffect(() => {
+    if (!enabled) return;
     api.projects.list()
       .then(data => setProjects(data))
       .finally(() => setLoading(false));
-  }, []);
+  }, [enabled]);
 
   const createProject = async (project: Partial<Project>) => {
     const newProject = await api.projects.create(project);
@@ -96,15 +100,16 @@ export function useProjects() {
   };
 }
 
-export function useTags() {
+export function useTags(enabled: boolean = true) {
   const [tags, setTags] = useState<Tag[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
 
   useEffect(() => {
+    if (!enabled) return;
     api.tags.list()
       .then(data => setTags(data))
       .finally(() => setLoading(false));
-  }, []);
+  }, [enabled]);
 
   const createTag = async (tag: Partial<Tag>) => {
     const newTag = await api.tags.create(tag);

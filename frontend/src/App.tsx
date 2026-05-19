@@ -35,17 +35,17 @@ function App() {
     todos, 
     loading: todosLoading, 
     fetchTodos
-  } = useTodos(authenticated ? filters : {});
+  } = useTodos(authenticated ? filters : {}, authenticated);
 
   const { 
     projects, 
     loading: projectsLoading
-  } = useProjects();
+  } = useProjects(authenticated);
 
   const { 
     tags, 
     loading: tagsLoading
-  } = useTags();
+  } = useTags(authenticated);
 
   const handleCreateTodo = async (todoData: Partial<Todo>) => {
     const todo = await api.todos.create(todoData);
