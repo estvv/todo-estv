@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { api } from '../utils/api';
 import type { Todo, Project, Tag } from '../types';
 
-export function useTodos(initialFilter?: Record<string, string>, enabled: boolean = true) {
+export function useTodos(initialFilter: Record<string, string> = {}, enabled: boolean = true) {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
@@ -11,7 +11,7 @@ export function useTodos(initialFilter?: Record<string, string>, enabled: boolea
     if (!enabled) return;
     try {
       setLoading(true);
-      const data = await api.todos.list(filter || initialFilter);
+      const data = await api.todos.list(filter);
       setTodos(data);
       setError(null);
     } catch (err) {
@@ -19,13 +19,13 @@ export function useTodos(initialFilter?: Record<string, string>, enabled: boolea
     } finally {
       setLoading(false);
     }
-  }, [initialFilter, enabled]);
+  }, [enabled]);
 
   useEffect(() => {
     if (enabled) {
-      fetchTodos();
+      fetchTodos(initialFilter);
     }
-  }, [enabled, fetchTodos]);
+  }, [enabled, initialFilter.project_id, initialFilter.tag_id]);
 
   const createTodo = async (todo: Partial<Todo>) => {
     const newTodo = await api.todos.create(todo);

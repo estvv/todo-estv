@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
 import { ListView } from './components/views/ListView';
@@ -27,22 +27,20 @@ function App() {
     setAuthenticated(isAuthenticated());
   }, []);
 
-  const filters: Record<string, string> = {};
-  if (activeProject) filters.project_id = String(activeProject);
-  if (activeTag) filters.tag_id = String(activeTag);
-  const filterKey = JSON.stringify(filters);
-  
   const { 
     todos, 
     loading: todosLoading, 
     fetchTodos
-  } = useTodos(authenticated ? filters : {}, authenticated);
-
-  useEffect(() => {
-    if (authenticated) {
-      fetchTodos(filters);
-    }
-  }, [filterKey, authenticated, fetchTodos]);
+  } = useTodos(
+    useMemo(() => {
+      if (!authenticated) return {};
+      const f: Record<string, string> = {};
+      if (activeProject) f.project_id = String(activeProject);
+      if (activeTag) f.tag_id = String(activeTag);
+      return f;
+    }, [authenticated, activeProject, activeTag]), 
+    authenticated
+  );
 
   const { 
     projects, 
