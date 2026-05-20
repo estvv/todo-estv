@@ -9,3 +9,4 @@ data/
 .vscode
 docker-compose.override.yml
 .opencode
+Makefile
