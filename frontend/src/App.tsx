@@ -30,12 +30,19 @@ function App() {
   const filters: Record<string, string> = {};
   if (activeProject) filters.project_id = String(activeProject);
   if (activeTag) filters.tag_id = String(activeTag);
-
+  const filterKey = JSON.stringify(filters);
+  
   const { 
     todos, 
     loading: todosLoading, 
     fetchTodos
   } = useTodos(authenticated ? filters : {}, authenticated);
+
+  useEffect(() => {
+    if (authenticated) {
+      fetchTodos(filters);
+    }
+  }, [filterKey, authenticated, fetchTodos]);
 
   const { 
     projects, 
@@ -109,7 +116,7 @@ function App() {
         />
 
         <main className="flex-1 overflow-auto" style={{ marginLeft: '256px' }}>
-          <div className={currentView === 'calendar' ? 'p-6' : 'max-w-3xl mx-auto px-6 py-12'}>
+          <div className={currentView === 'board' ? 'h-full p-6' : currentView === 'calendar' ? 'p-6' : 'max-w-3xl mx-auto px-6 py-12'}>
             {todosLoading || projectsLoading || tagsLoading ? (
               <div className="flex items-center justify-center h-64">
                 <div className="text-sm text-neutral-400">Loading...</div>

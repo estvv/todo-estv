@@ -25,7 +25,7 @@ export function useTodos(initialFilter?: Record<string, string>, enabled: boolea
     if (enabled) {
       fetchTodos();
     }
-  }, [enabled]);
+  }, [enabled, fetchTodos]);
 
   const createTodo = async (todo: Partial<Todo>) => {
     const newTodo = await api.todos.create(todo);

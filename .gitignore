@@ -7,3 +7,4 @@ build/
 .env.local
 data/
 .vscode
+docker-compose.override.yml

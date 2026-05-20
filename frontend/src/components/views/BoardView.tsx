@@ -35,7 +35,7 @@ export function BoardView({
 
   return (
     <>
-      <div className="flex gap-6" style={{ height: 'calc(100vh - 200px)' }}>
+      <div className="flex gap-6 h-full">
         {columns.map(column => (
           <div key={column.id} className="flex-1 flex flex-col min-w-0">
             <div className="mb-3 flex items-center justify-between">

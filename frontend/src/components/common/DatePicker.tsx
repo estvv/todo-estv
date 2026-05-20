@@ -59,7 +59,7 @@ export function DatePicker({ value, onChange }: DatePickerProps) {
       <button
         type="button"
         onClick={() => setShowPicker(!showPicker)}
-        className={`text-sm ${getDateColor()} hover:text-neutral-900 transition-colors`}
+        className={`text-sm px-3 py-1.5 rounded-lg border ${getDateColor()} hover:text-neutral-900 transition-colors ${!value ? 'border-neutral-200 text-neutral-400' : 'border-neutral-300'}`}
       >
         {value ? formatDate(value) : 'Set due date'}
       </button>
