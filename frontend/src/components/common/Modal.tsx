@@ -29,7 +29,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
         className="absolute inset-0 bg-black/50"
         onClick={onClose}
       />
-      <div className="relative bg-white rounded-lg border border-neutral-200 shadow-lg max-w-lg w-full mx-4">
+      <div className="relative bg-white rounded-lg shadow-lg max-w-lg w-full mx-4">
         <div className="flex items-center justify-between p-4 border-b border-neutral-200">
           <h2 className="text-lg font-semibold text-neutral-900">{title}</h2>
           <button
@@ -41,7 +41,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
             </svg>
           </button>
         </div>
-        <div className="p-4">
+        <div className="p-6">
           {children}
         </div>
       </div>

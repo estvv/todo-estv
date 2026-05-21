@@ -7,7 +7,9 @@ import { CalendarView } from './components/views/CalendarView';
 import { ProjectEditor } from './components/projects/ProjectEditor';
 import { TagEditor } from './components/tags/TagEditor';
 import { LoginPage } from './components/auth/LoginPage';
+import { Spinner } from './components/common/Spinner';
 import { useTodos, useProjects, useTags } from './hooks/useApi';
+import { useSidebar } from './hooks/useSidebar';
 import { api } from './utils/api';
 import { isAuthenticated } from './utils/auth';
 import type { ViewMode, Todo, Project, Tag } from './types';
@@ -21,6 +23,8 @@ function App() {
   
   const [showProjectEditor, setShowProjectEditor] = useState(false);
   const [showTagEditor, setShowTagEditor] = useState(false);
+  
+  const sidebar = useSidebar();
 
   useEffect(() => {
     setCheckingAuth(false);
@@ -59,13 +63,25 @@ function App() {
   };
 
   const handleCreateProject = async (projectData: Partial<Project>) => {
-    await api.projects.create(projectData);
-    window.location.reload();
+    try {
+      await api.projects.create(projectData);
+      window.location.reload();
+    } catch (err) {
+      console.error('Failed to create project:', err);
+    }
   };
 
   const handleCreateTag = async (tagData: Partial<Tag>) => {
-    await api.tags.create(tagData);
-    window.location.reload();
+    try {
+      await api.tags.create(tagData);
+      window.location.reload();
+    } catch (err) {
+      if (err instanceof Error && err.message.includes('409')) {
+        alert('A tag with this name already exists');
+      } else {
+        console.error('Failed to create tag:', err);
+      }
+    }
   };
 
   const handleUpdateTodo = async (id: number, updates: Partial<Todo>) => {
@@ -85,7 +101,7 @@ function App() {
   if (checkingAuth) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-sm text-neutral-400">Loading...</div>
+        <Spinner size="lg" />
       </div>
     );
   }
@@ -99,6 +115,7 @@ function App() {
       <Header
         currentView={currentView}
         onViewChange={setCurrentView}
+        onMenuClick={sidebar.toggle}
       />
 
       <div className="flex pt-16">
@@ -111,13 +128,15 @@ function App() {
           onSelectTag={setActiveTag}
           onCreateProject={() => setShowProjectEditor(true)}
           onCreateTag={() => setShowTagEditor(true)}
+          isOpen={sidebar.isOpen}
+          onClose={sidebar.close}
         />
 
-        <main className="flex-1 overflow-auto" style={{ marginLeft: '256px' }}>
+        <main className="flex-1 overflow-auto lg:ml-64">
           <div className={currentView === 'board' ? 'h-full p-6' : currentView === 'calendar' ? 'p-6' : 'max-w-3xl mx-auto px-6 py-12'}>
             {todosLoading || projectsLoading || tagsLoading ? (
               <div className="flex items-center justify-center h-64">
-                <div className="text-sm text-neutral-400">Loading...</div>
+                <Spinner size="md" />
               </div>
             ) : (
               <>
@@ -156,7 +175,7 @@ function App() {
             {currentView !== 'calendar' && (
               <footer className="pt-6 mt-8 border-t border-neutral-200">
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                   <span className="text-xs text-neutral-400">Auto-save enabled</span>
                 </div>
               </footer>

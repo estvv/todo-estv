@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"todo-estv/internal/database"
 	"todo-estv/internal/models"
@@ -42,7 +43,12 @@ func (h *TagHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.DB.CreateTag(&tag); err != nil {
-		respondError(w, http.StatusInternalServerError, err.Error())
+		// Check for unique constraint violation
+		if strings.Contains(err.Error(), "UNIQUE constraint failed: tags.name") {
+			respondError(w, http.StatusConflict, "Tag with this name already exists")
+			return
+		}
+		respondError(w, http.StatusInternalServerError, "Failed to create tag")
 		return
 	}
 

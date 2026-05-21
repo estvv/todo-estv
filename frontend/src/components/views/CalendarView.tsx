@@ -107,12 +107,12 @@ export function CalendarView({ todos, onUpdate, onDelete }: CalendarViewProps) {
                 key={index}
                 onClick={() => setSelectedDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), day))}
                   className={`
-                  h-24 border border-neutral-200 rounded-lg p-1 cursor-pointer transition-colors
-                  ${isToday(day) ? 'bg-neutral-700 text-white' : 'hover:bg-neutral-50'}
-                  ${isSelected ? 'ring-2 ring-neutral-700' : ''}
+                  h-24 border border-neutral-200 rounded-lg p-1 cursor-pointer transition-colors duration-150
+                  ${isToday(day) ? 'bg-emerald-100 border-emerald-300' : 'hover:bg-emerald-50'}
+                  ${isSelected ? 'ring-2 ring-emerald-400' : ''}
                 `}
               >
-                <div className={`text-xs font-medium ${isToday(day) ? 'text-white' : 'text-neutral-900'} mb-1`}>
+                <div className={`text-xs font-medium ${isToday(day) ? 'text-emerald-700 font-semibold' : 'text-neutral-900'} mb-1`}>
                   {day}
                 </div>
                 <div className="space-y-0.5">
@@ -121,14 +121,14 @@ export function CalendarView({ todos, onUpdate, onDelete }: CalendarViewProps) {
                       key={todo.id}
                       className={`
                         text-xs truncate px-1 rounded
-                        ${isToday(day) ? 'text-white' : 'bg-neutral-100 text-neutral-900'}
+                        ${isToday(day) ? 'bg-emerald-200/50 text-emerald-900' : 'bg-emerald-100 text-neutral-900'}
                       `}
                     >
                       {todo.title}
                     </div>
                   ))}
                   {dayTodos.length > 3 && (
-                    <div className={`text-xs ${isToday(day) ? 'text-white' : 'text-neutral-400'}`}>
+                    <div className={`text-xs ${isToday(day) ? 'text-emerald-600' : 'text-neutral-400'}`}>
                       +{dayTodos.length - 3} more
                     </div>
                   )}

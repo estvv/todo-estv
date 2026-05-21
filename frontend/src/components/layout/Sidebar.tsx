@@ -9,6 +9,8 @@ interface SidebarProps {
   onSelectTag: (id?: number) => void;
   onCreateProject: () => void;
   onCreateTag: () => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export function Sidebar({
@@ -20,79 +22,103 @@ export function Sidebar({
   onSelectTag,
   onCreateProject,
   onCreateTag,
+  isOpen,
+  onClose,
 }: SidebarProps) {
   return (
-    <aside className="fixed left-0 top-16 bottom-0 w-64 border-r border-neutral-200 overflow-y-auto bg-white">
-      <div className="p-6">
-        <div className="mb-8">
-          <button
-            onClick={() => {
-              onSelectProject(undefined);
-              onSelectTag(undefined);
-            }}
-            className={`
-              w-full text-left py-2 px-3 rounded-lg text-sm transition-colors
-              ${!activeProject && !activeTag 
-                ? 'bg-neutral-100 text-neutral-900' 
-                : 'text-neutral-400 hover:text-neutral-900 hover:bg-neutral-50'
-              }
-            `}
+    <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+      
+      <aside className={`
+        fixed left-0 top-16 bottom-0 w-64 border-r border-neutral-200 overflow-y-auto bg-white z-50
+        transition-transform duration-150 ease-in-out
+        lg:translate-x-0
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
+        <div className="p-6">
+          <div className="mb-8">
+            <button
+              onClick={() => {
+                onSelectProject(undefined);
+                onSelectTag(undefined);
+                onClose();
+              }}
+              className={`
+                w-full text-left py-2 px-3 rounded-lg text-sm transition-colors
+                ${!activeProject && !activeTag 
+                  ? 'bg-emerald-100 text-emerald-900' 
+                  : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50'
+                }
+              `}
+            >
+              All Tasks
+            </button>
+          </div>
+
+          <Section
+            title="Projects"
+            onCreate={onCreateProject}
           >
-            All Tasks
-          </button>
+            {projects.map(project => (
+              <button
+                key={project.id}
+                onClick={() => {
+                  onSelectProject(project.id);
+                  onClose();
+                }}
+                className={`
+                  w-full text-left py-2 px-3 rounded-lg text-sm transition-colors flex items-center gap-2
+                  ${activeProject === project.id 
+                    ? 'bg-emerald-100 text-emerald-900' 
+                    : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50'
+                  }
+                `}
+              >
+                <span 
+                  className="w-2 h-2 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: project.color }}
+                />
+                {project.name}
+              </button>
+            ))}
+          </Section>
+
+          <Section
+            title="Tags"
+            onCreate={onCreateTag}
+          >
+            {tags.map(tag => (
+              <button
+                key={tag.id}
+                onClick={() => {
+                  onSelectTag(tag.id);
+                  onClose();
+                }}
+                className={`
+                  w-full text-left py-2 px-3 rounded-lg text-sm transition-colors flex items-center gap-2
+                  ${activeTag === tag.id 
+                    ? 'bg-emerald-100 text-emerald-900' 
+                    : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50'
+                  }
+                `}
+              >
+                <span 
+                  className="w-2 h-2 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: tag.color }}
+                />
+                {tag.name}
+              </button>
+            ))}
+          </Section>
         </div>
-
-        <Section
-          title="Projects"
-          onCreate={onCreateProject}
-        >
-          {projects.map(project => (
-            <button
-              key={project.id}
-              onClick={() => onSelectProject(project.id)}
-              className={`
-                w-full text-left py-2 px-3 rounded-lg text-sm transition-colors flex items-center gap-2
-                ${activeProject === project.id 
-                  ? 'bg-neutral-100 text-neutral-900' 
-                  : 'text-neutral-400 hover:text-neutral-900 hover:bg-neutral-50'
-                }
-              `}
-            >
-              <span 
-                className="w-2 h-2 rounded-full"
-                style={{ backgroundColor: project.color }}
-              />
-              {project.name}
-            </button>
-          ))}
-        </Section>
-
-        <Section
-          title="Tags"
-          onCreate={onCreateTag}
-        >
-          {tags.map(tag => (
-            <button
-              key={tag.id}
-              onClick={() => onSelectTag(tag.id)}
-              className={`
-                w-full text-left py-2 px-3 rounded-lg text-sm transition-colors flex items-center gap-2
-                ${activeTag === tag.id 
-                  ? 'bg-neutral-100 text-neutral-900' 
-                  : 'text-neutral-400 hover:text-neutral-900 hover:bg-neutral-50'
-                }
-              `}
-            >
-              <span 
-                className="w-2 h-2 rounded-full"
-                style={{ backgroundColor: tag.color }}
-              />
-              {tag.name}
-            </button>
-          ))}
-        </Section>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 }
 

@@ -75,20 +75,32 @@ export function TodoItem({ todo, onUpdate, onDelete, onClick }: TodoItemProps) {
     );
   };
 
+  const getStatusIndicator = () => {
+    if (todo.completed) {
+      return (
+        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse-green" />
+      );
+    }
+    return null;
+  };
+
   return (
     <div
-      className="border border-neutral-200 rounded-lg p-4 hover:bg-neutral-50 transition-colors"
+      onClick={onClick}
+      className="border border-neutral-200 rounded-lg p-4 hover:bg-emerald-100/30 hover:border-emerald-300/50 transition-all duration-150 cursor-pointer group"
     >
       <div className="flex items-start gap-3">
         <input
           type="checkbox"
           checked={todo.completed}
           onChange={handleToggle}
-          className="mt-1 w-4 h-4 rounded border-neutral-300 text-green-500 focus:ring-green-500"
+          onClick={(e) => e.stopPropagation()}
+          className="mt-1 w-4 h-4 rounded border-neutral-300 text-emerald-600 focus:ring-emerald-500 focus:ring-offset-0 cursor-pointer"
         />
         
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
+            {getStatusIndicator()}
             <h3 className={`text-sm font-medium ${todo.completed ? 'text-neutral-400 line-through' : 'text-neutral-900'}`}>
               {todo.title}
             </h3>
@@ -139,9 +151,12 @@ export function TodoItem({ todo, onUpdate, onDelete, onClick }: TodoItemProps) {
           </div>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
           <button
-            onClick={onClick}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick();
+            }}
             className="p-1.5 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded transition-colors"
             title="Edit"
           >
@@ -150,9 +165,12 @@ export function TodoItem({ todo, onUpdate, onDelete, onClick }: TodoItemProps) {
             </svg>
           </button>
           <button
-            onClick={handleDelete}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(e);
+            }}
             disabled={isDeleting}
-            className="p-1.5 text-neutral-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+            className="p-1.5 text-neutral-400 hover:text-red-400 hover:bg-red-50 rounded transition-colors"
             title="Delete"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

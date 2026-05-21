@@ -59,7 +59,7 @@ func (h *ProjectHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.DB.CreateProject(&project); err != nil {
-		respondError(w, http.StatusInternalServerError, err.Error())
+		respondError(w, http.StatusInternalServerError, "Failed to create project")
 		return
 	}
 

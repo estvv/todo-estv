@@ -73,7 +73,7 @@ export function TodoEditor({
         className="absolute inset-0 bg-black/50"
         onClick={onClose}
       />
-      <div className="relative bg-white rounded-lg border border-neutral-200 shadow-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-white rounded-lg shadow-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-4 border-b border-neutral-200">
           <h2 className="text-lg font-semibold text-neutral-900">
             {todo ? 'Edit Todo' : 'New Todo'}
@@ -88,14 +88,14 @@ export function TodoEditor({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Task title"
-              className="w-full text-lg font-medium border-0 border-b border-neutral-200 focus:border-neutral-900 focus:ring-0 pb-2 placeholder-neutral-400"
+              className="w-full text-lg font-medium border-0 border-b border-neutral-200 focus:border-neutral-400 focus:ring-0 pb-2 pl-1 placeholder-neutral-400 text-neutral-900 outline-none"
               autoFocus
             />
           </div>
@@ -106,7 +106,7 @@ export function TodoEditor({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Description (optional)"
               rows={3}
-              className="w-full text-sm border border-neutral-200 rounded-lg p-3 focus:border-neutral-900 focus:ring-0 resize-none placeholder-neutral-400"
+              className="w-full text-sm border border-neutral-200 rounded-lg p-3 focus:border-neutral-400 focus:ring-0 resize-none placeholder-neutral-400 text-neutral-900 outline-none"
             />
           </div>
 
@@ -118,7 +118,7 @@ export function TodoEditor({
               <select
                 value={projectId || ''}
                 onChange={(e) => setProjectId(e.target.value ? Number(e.target.value) : undefined)}
-                className="w-full text-sm border border-neutral-200 rounded-lg p-2 focus:border-neutral-900 focus:ring-0"
+                className="w-full text-sm border border-neutral-200 rounded-lg p-2 focus:border-neutral-400 focus:ring-0 outline-none text-neutral-900"
               >
                 <option value="">No project</option>
                 {projects.map(project => (
@@ -142,22 +142,39 @@ export function TodoEditor({
               Priority
             </label>
             <div className="flex gap-2">
-              {(['low', 'medium', 'high'] as const).map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => setPriority(p)}
-                  className={`
-                    px-4 py-2 text-sm rounded-lg border transition-colors capitalize
-                    ${priority === p 
-                      ? 'border-neutral-700 bg-neutral-700 text-white' 
-                      : 'border-neutral-200 text-neutral-400 hover:border-neutral-900 hover:text-neutral-900'
-                    }
-                  `}
-                >
-                  {p}
-                </button>
-              ))}
+              <button
+                type="button"
+                onClick={() => setPriority('low')}
+                className={`px-4 py-2 text-sm rounded-lg border-2 transition-colors duration-150 capitalize
+                  ${priority === 'low' 
+                    ? 'border-blue-500 bg-blue-100 text-blue-700' 
+                    : 'border-neutral-200 text-neutral-500 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50'
+                  }`}
+              >
+                Low
+              </button>
+              <button
+                type="button"
+                onClick={() => setPriority('medium')}
+                className={`px-4 py-2 text-sm rounded-lg border-2 transition-colors duration-150 capitalize
+                  ${priority === 'medium' 
+                    ? 'border-amber-500 bg-amber-100 text-amber-700' 
+                    : 'border-neutral-200 text-neutral-500 hover:border-amber-300 hover:text-amber-600 hover:bg-amber-50'
+                  }`}
+              >
+                Medium
+              </button>
+              <button
+                type="button"
+                onClick={() => setPriority('high')}
+                className={`px-4 py-2 text-sm rounded-lg border-2 transition-colors duration-150 capitalize
+                  ${priority === 'high' 
+                    ? 'border-red-500 bg-red-100 text-red-700' 
+                    : 'border-neutral-200 text-neutral-500 hover:border-red-300 hover:text-red-600 hover:bg-red-50'
+                  }`}
+              >
+                High
+              </button>
             </div>
           </div>
 
@@ -177,10 +194,10 @@ export function TodoEditor({
                         : [...prev, tag.id]
                     );
                   }}
-                  className={`px-3 py-1 text-sm rounded-full border transition-colors ${
+                  className={`px-3 py-1 text-sm rounded-full border-2 transition-colors duration-150 ${
                     selectedTags.includes(tag.id)
                       ? 'border-transparent'
-                      : 'border-neutral-200 text-neutral-400 hover:border-neutral-900'
+                      : 'border-neutral-200 text-neutral-500 hover:border-neutral-300'
                   }`}
                   style={selectedTags.includes(tag.id) ? {
                     backgroundColor: `${tag.color}15`,
@@ -201,11 +218,11 @@ export function TodoEditor({
               </label>
               <div className="space-y-2">
                 {todo.subtasks.map(subtask => (
-                  <div key={subtask.id} className="flex items-center gap-2 text-sm">
+                  <div key={subtask.id} className="flex items-center gap-2 text-sm text-neutral-900">
                     <input
                       type="checkbox"
                       checked={subtask.completed}
-                      className="w-4 h-4 rounded border-neutral-300"
+                      className="w-4 h-4 rounded border-neutral-300 text-emerald-500 focus:ring-emerald-500"
                       disabled
                     />
                     <span className={subtask.completed ? 'line-through text-neutral-400' : ''}>
@@ -228,9 +245,9 @@ export function TodoEditor({
                   value={newSubtask}
                   onChange={(e) => setNewSubtask(e.target.value)}
                   placeholder="Subtask title"
-                  className="flex-1 text-sm border border-neutral-200 rounded-lg p-2 focus:border-neutral-900 focus:ring-0"
+                  className="flex-1 text-sm border border-neutral-200 rounded-lg p-2 focus:border-neutral-400 focus:ring-0 outline-none text-neutral-900"
                 />
-                <Button type="button" onClick={handleAddSubtask} variant="secondary">
+                <Button type="button" onClick={handleAddSubtask} className="border-emerald-500 text-emerald-700 hover:bg-emerald-50">
                   Add
                 </Button>
               </div>
@@ -238,10 +255,10 @@ export function TodoEditor({
           )}
 
           <div className="flex gap-3 pt-4 border-t border-neutral-200">
-            <Button type="submit" disabled={!title.trim() || saving}>
+            <Button type="submit" disabled={!title.trim() || saving} color="#10b981">
               {saving ? 'Saving...' : todo ? 'Save Changes' : 'Create Todo'}
             </Button>
-            <Button type="button" variant="secondary" onClick={onClose}>
+            <Button type="button" variant="ghost" onClick={onClose} className="hover:text-emerald-700 hover:bg-emerald-50">
               Cancel
             </Button>
           </div>

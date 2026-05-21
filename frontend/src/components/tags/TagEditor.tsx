@@ -53,7 +53,7 @@ export function TagEditor({ tag, onSave, onClose }: TagEditorProps) {
                 handleSubmit(e);
               }
             }}
-            className="w-full text-sm border border-neutral-200 rounded-lg p-2 focus:border-neutral-900 focus:ring-0"
+            className="w-full text-sm border border-neutral-200 rounded-lg p-2 focus:border-neutral-400 focus:ring-0 outline-none text-neutral-900"
             placeholder="Tag name (without #)"
             autoFocus
           />
@@ -69,18 +69,21 @@ export function TagEditor({ tag, onSave, onClose }: TagEditorProps) {
                 key={c}
                 type="button"
                 onClick={() => setColor(c)}
-                className={`w-8 h-8 rounded-full transition-transform ${color === c ? 'scale-110 ring-2 ring-offset-2 ring-neutral-900' : ''}`}
-                style={{ backgroundColor: c }}
+                className={`w-8 h-8 rounded-full transition-all duration-150 ${color === c ? 'scale-110' : 'hover:scale-105'}`}
+                style={{ 
+                  backgroundColor: c,
+                  ...(color === c ? { boxShadow: `0 0 0 2px white, 0 0 0 4px ${c}` } : {})
+                }}
               />
             ))}
           </div>
         </div>
 
         <div className="flex gap-3 pt-4">
-          <Button type="submit" disabled={!name.trim() || saving}>
+          <Button type="submit" disabled={!name.trim() || saving} color="#10b981">
             {saving ? 'Saving...' : tag ? 'Save Changes' : 'Create Tag'}
           </Button>
-          <Button type="button" variant="secondary" onClick={onClose}>
+          <Button type="button" variant="ghost" onClick={onClose} className="hover:text-emerald-700 hover:bg-emerald-50">
             Cancel
           </Button>
         </div>

@@ -10,9 +10,15 @@ import (
 	"todo-estv/internal/middleware"
 
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	// Load .env file from backend directory
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found, using environment variables")
+	}
+
 	dbPath := os.Getenv("DB_PATH")
 	if dbPath == "" {
 		dbPath = "./data/todo.db"

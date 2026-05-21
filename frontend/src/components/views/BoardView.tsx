@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Todo, Project, Tag } from '../../types';
 import { TodoItem } from '../todos/TodoItem';
 import { TodoEditor } from '../todos/TodoEditor';
+import { Spinner } from '../common/Spinner';
 
 interface BoardViewProps {
   todos: Todo[];
@@ -10,6 +11,7 @@ interface BoardViewProps {
   onUpdate: (id: number, updates: Partial<Todo>) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
   onCreateTodo: (todo: Partial<Todo>) => Promise<Todo>;
+  isLoading?: boolean;
 }
 
 export function BoardView({ 
@@ -18,14 +20,14 @@ export function BoardView({
   tags, 
   onUpdate, 
   onDelete, 
-  onCreateTodo 
+  onCreateTodo,
+  isLoading
 }: BoardViewProps) {
   const [editingTodo, setEditingTodo] = useState<Todo | undefined>();
-  const [showNewTodo, setShowNewTodo] = useState<'todo' | 'inprogress' | 'done' | null>(null);
+  const [showNewTodo, setShowNewTodo] = useState<'todo' | 'done' | null>(null);
 
   const columns = [
-    { id: 'todo', title: 'To Do', filter: (t: Todo) => !t.completed && t.priority !== 'high' },
-    { id: 'inprogress', title: 'In Progress', filter: (t: Todo) => !t.completed && t.priority === 'high' },
+    { id: 'todo', title: 'To Do', filter: (t: Todo) => !t.completed && !t.completed },
     { id: 'done', title: 'Done', filter: (t: Todo) => t.completed },
   ];
 
@@ -33,9 +35,17 @@ export function BoardView({
     return todos.filter(filter);
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Spinner size="md" />
+      </div>
+    );
+  }
+
   return (
     <>
-      <div className="flex gap-6 h-full">
+      <div className="flex flex-col lg:flex-row gap-6">
         {columns.map(column => (
           <div key={column.id} className="flex-1 flex flex-col min-w-0">
             <div className="mb-3 flex items-center justify-between">
@@ -47,7 +57,7 @@ export function BoardView({
               </span>
             </div>
 
-            <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+            <div className="space-y-3">
               {getTodosForColumn(column.filter).map(todo => (
                 <TodoItem
                   key={todo.id}
@@ -60,8 +70,8 @@ export function BoardView({
 
               {column.id !== 'done' && (
                 <button
-                  onClick={() => setShowNewTodo(column.id as 'todo' | 'inprogress')}
-                  className="w-full py-2 border-2 border-dashed border-neutral-200 rounded-lg text-sm text-neutral-400 hover:text-neutral-900 hover:border-neutral-300 transition-colors"
+                  onClick={() => setShowNewTodo(column.id as 'todo')}
+                  className="w-full py-2 border-2 border-dashed border-neutral-200 rounded-lg text-sm text-neutral-400 hover:text-emerald-600 hover:border-emerald-300 hover:bg-emerald-50/30 transition-all duration-150"
                 >
                   + Add task
                 </button>
